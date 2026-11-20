@@ -1,6 +1,6 @@
 -- Zyrumi's Libram: minimap button and the minimap's addon menu
---   Left-click:  settings
---   Right-click: unlock or lock the frames
+--   Left-click:  the Libram window (class quests)
+--   Right-click: settings
 --   Drag:        move the button around the minimap's edge
 -- The button can be hidden on the settings page; the entry in the minimap's
 -- addon menu (the TOC's AddonCompartmentFunc) is always there.
@@ -55,9 +55,9 @@ end
 
 local function Click(mouse)
     if mouse == "RightButton" then
-        root.SetUnlocked(not root.unlocked)
-    else
         root.OpenOptions()
+    elseif root.Window then
+        root.Window.Toggle()
     end
 end
 
@@ -67,8 +67,8 @@ local function Tooltip(owner, anchor)
     if not root.IsPaladin() then
         GameTooltip:AddLine("Only does something on a paladin.", 1, 0.5, 0.5, true)
     end
-    GameTooltip:AddLine("Click: settings", nil, nil, nil, true)
-    GameTooltip:AddLine(root.unlocked and "Right-click: lock the frames" or "Right-click: move the frames", nil, nil, nil, true)
+    GameTooltip:AddLine("Click: class quests", nil, nil, nil, true)
+    GameTooltip:AddLine("Right-click: settings", nil, nil, nil, true)
     GameTooltip:Show()
 end
 
@@ -91,10 +91,6 @@ local function Create()
     icon:SetSize(20, 20)
     icon:SetPoint("CENTER", 0, 1)
     icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-    -- round it off like other minimap buttons
-    if icon.SetMask then
-        pcall(icon.SetMask, icon, "Interface\\CharacterFrame\\TempPortraitAlphaMask")
-    end
     button.icon = icon
 
     local border = button:CreateTexture(nil, "OVERLAY")

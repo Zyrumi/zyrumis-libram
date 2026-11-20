@@ -18,9 +18,6 @@ A paladin helper for World of Warcraft: Forever. It works the moment you log in:
 - Two buttons above your action bar. Tank puts on your "Tank" gear set, turns the action bar to your tank page and casts Righteous Fury. DPS does the opposite. The Tank button toggles, so one key switches back and forth.
 - The bar swap works in combat; gear catches up when you click again after the fight.
 
-**Seal and judgement timers**
-- During fights: your seal with its time left, "No seal" when none is up, and your judgement on your target.
-
 **Threat for tanks**
 - An icon above each enemy nameplate and your target: yours, slipping, or on someone else (with their name).
 
@@ -51,6 +48,6 @@ Esc > Options > AddOns > Zyrumi's Libram, the minimap button, the minimap's addo
 
 ## Notes
 
-- Forever hides most buff details from addons during fights. Reminders wait until the fight is over, and seal and judgement times come from your own casts. Nothing is guessed: if the game won't say what someone has, no icon shows.
+- Forever hides most buff details from addons during fights. Reminders wait until the fight is over. Nothing is guessed: if the game won't say what someone has, no icon shows.
 - Spell names come from the game, so any client language works. The addon's own text is English.
 - With PallyPower loaded, raid blessings are left to PallyPower.

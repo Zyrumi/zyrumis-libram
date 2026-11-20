@@ -147,7 +147,7 @@ function ClassQuests.AnnounceFor(level)
 end
 
 -------------------------------------------------------------------------------
--- Settings page: the checklist
+-- The Libram window: the checklist (minimap button, /libram quests, key)
 -------------------------------------------------------------------------------
 
 local STATE_TEXT = {
@@ -156,43 +156,95 @@ local STATE_TEXT = {
     ready = "|cfff5c542Ready|r",
     later = "|cffa0a0a0Level %d|r",
 }
+local ROW_H = 60
 
+local Window = {}
+root.Window = Window
+
+local win, content, summary, emptyNote
 local rows = {}
-local emptyNote
 
-local function Row(parent, i)
+-- Hovering a chain lists all its steps.
+local function RowTooltip(self)
+    local m = self.milestone
+    if not m then
+        return
+    end
+    local st = ClassQuests.Status(m)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText(m.title, 1, 1, 1)
+    GameTooltip:AddLine(m.reward, 0.8, 0.8, 0.8, true)
+    for i, step in ipairs(m.steps) do
+        local mark
+        if st.state == "done" or i <= st.doneCount then
+            mark = "|cff7fd17fdone|r"
+        elseif i == st.nextIndex then
+            mark = "|cfff5c542next|r"
+        else
+            mark = "|cffa0a0a0level " .. step.level .. "|r"
+        end
+        GameTooltip:AddDoubleLine(("%d. %s"):format(i, QuestName(step)), mark, 1, 1, 1)
+    end
+    if m.side then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine("Also part of it:", 0.8, 0.8, 0.8)
+        for _, sq in ipairs(m.side) do
+            GameTooltip:AddDoubleLine(QuestName(sq), StepDone(sq) and "|cff7fd17fdone|r" or "", 1, 1, 1)
+        end
+    end
+    GameTooltip:Show()
+end
+
+local function Row(i)
     local r = rows[i]
     if r then
         return r
     end
-    r = {}
-    local y = -100 - (i - 1) * 58
-    r.state = parent:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-    r.state:SetPoint("TOPLEFT", 16, y)
-    r.state:SetWidth(90)
+    r = CreateFrame("Frame", nil, content)
+    r:SetHeight(ROW_H - 4)
+    r:SetPoint("TOPLEFT", 4, -(i - 1) * ROW_H)
+    r:SetPoint("RIGHT", content, "RIGHT", -4, 0)
+    r:EnableMouse(true)
+    r:SetScript("OnEnter", RowTooltip)
+    r:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    r.bg = r:CreateTexture(nil, "BACKGROUND")
+    r.bg:SetAllPoints()
+    r.bg:SetColorTexture(1, 1, 1, i % 2 == 0 and 0.04 or 0.08)
+    r.state = r:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    r.state:SetPoint("TOPLEFT", 8, -6)
+    r.state:SetWidth(92)
     r.state:SetJustifyH("LEFT")
-    r.title = parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    r.title:SetPoint("TOPLEFT", 110, y)
-    r.title:SetWidth(470)
+    r.title = r:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    r.title:SetPoint("TOPLEFT", 104, -6)
+    r.title:SetPoint("RIGHT", -8, 0)
     r.title:SetJustifyH("LEFT")
-    r.line1 = parent:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-    r.line1:SetPoint("TOPLEFT", 110, y - 17)
-    r.line1:SetWidth(470)
+    r.line1 = r:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    r.line1:SetPoint("TOPLEFT", 104, -23)
+    r.line1:SetPoint("RIGHT", -8, 0)
     r.line1:SetJustifyH("LEFT")
-    r.line2 = parent:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
-    r.line2:SetPoint("TOPLEFT", 110, y - 31)
-    r.line2:SetWidth(470)
+    r.line2 = r:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
+    r.line2:SetPoint("TOPLEFT", 104, -38)
+    r.line2:SetPoint("RIGHT", -8, 0)
     r.line2:SetJustifyH("LEFT")
+    r.line2:SetWordWrap(false)
     rows[i] = r
     return r
 end
 
-local function Fill(page)
+function Window.Fill()
+    if not win then
+        return
+    end
     local list = ClassQuests.Mine()
     local level = Safe(UnitLevel, "player") or 1
+    local done = 0
     for i, m in ipairs(list) do
-        local r = Row(page, i)
+        local r = Row(i)
+        r.milestone = m
         local st = ClassQuests.Status(m, level)
+        if st.state == "done" then
+            done = done + 1
+        end
         local first = m.steps[1]
         r.state:SetText(st.state == "later" and STATE_TEXT.later:format(st.next.level) or STATE_TEXT[st.state])
         r.title:SetText(("%s  |cffa0a0a0level %d, %s|r"):format(m.title, m.level, m.reward))
@@ -211,49 +263,147 @@ local function Fill(page)
                 r.line2:SetText("Handed out when you finish the step before.")
             end
         end
-        if m.side then
-            local left = {}
-            for _, s in ipairs(m.side) do
-                if not StepDone(s) then
-                    left[#left + 1] = QuestName(s)
-                end
-            end
-            if #left > 0 and st.state ~= "done" then
-                r.line2:SetText(r.line2:GetText() .. "   Also part of it: " .. table.concat(left, ", "))
-            end
-        end
-        for _, fs in ipairs({ r.state, r.title, r.line1, r.line2 }) do
-            fs:Show()
-        end
+        r:SetAlpha(st.state == "done" and 0.6 or 1)
+        r:Show()
     end
     for i = #list + 1, #rows do
-        for _, fs in ipairs({ rows[i].state, rows[i].title, rows[i].line1, rows[i].line2 }) do
-            fs:Hide()
-        end
+        rows[i]:Hide()
     end
     emptyNote:SetShown(#list == 0)
-    page:SetHeight(100 + #list * 58 + 40)
+    summary:SetText(#list > 0 and ("%d of %d chains done. Hover a chain to see all its steps."):format(done, #list) or "")
+    content:SetHeight(math.max(1, #list * ROW_H))
 end
+
+local function SavePosition()
+    local point, _, relPoint, x, y = win:GetPoint()
+    if point then
+        root.db.windowPos = { point, relPoint, x, y }
+    end
+end
+
+local function Create()
+    win = CreateFrame("Frame", "ZyrumisLibramWindow", UIParent, "BackdropTemplate")
+    win:SetSize(600, 520)
+    win:SetFrameStrata("HIGH")
+    win:SetBackdrop({
+        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+        edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+        tile = true, tileSize = 32, edgeSize = 32,
+        insets = { left = 11, right = 12, top = 12, bottom = 11 },
+    })
+    win:SetClampedToScreen(true)
+    win:EnableMouse(true)
+    win:SetMovable(true)
+    win:RegisterForDrag("LeftButton")
+    win:SetScript("OnDragStart", win.StartMoving)
+    win:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        SavePosition()
+    end)
+    local p = root.db.windowPos
+    if type(p) == "table" and p[1] then
+        win:SetPoint(p[1], UIParent, p[2], p[3], p[4])
+    else
+        win:SetPoint("CENTER", 0, 40)
+    end
+    if UISpecialFrames then
+        table.insert(UISpecialFrames, "ZyrumisLibramWindow") -- Esc closes it
+    end
+
+    local icon = win:CreateTexture(nil, "ARTWORK")
+    icon:SetSize(36, 36)
+    icon:SetPoint("TOPLEFT", 22, -20)
+    icon:SetTexture(root.ICON)
+    icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+    local title = win:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    title:SetPoint("TOPLEFT", icon, "TOPRIGHT", 10, -1)
+    title:SetText(root.TITLE .. ": class quests")
+    summary = win:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    summary:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -4)
+
+    local close = CreateFrame("Button", nil, win, "UIPanelCloseButton")
+    close:SetPoint("TOPRIGHT", -6, -6)
+
+    local inset = CreateFrame("Frame", nil, win)
+    inset:SetPoint("TOPLEFT", 18, -66)
+    inset:SetPoint("BOTTOMRIGHT", -18, 48)
+    content = root.UI.ScrollArea(inset)
+    emptyNote = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    emptyNote:SetPoint("TOPLEFT", 8, -8)
+    emptyNote:SetText("Only paladins have class quests.")
+
+    local settings = CreateFrame("Button", nil, win, "UIPanelButtonTemplate")
+    settings:SetSize(120, 24)
+    settings:SetPoint("BOTTOMRIGHT", -22, 18)
+    settings:SetText("Settings")
+    settings:SetScript("OnClick", function()
+        win:Hide()
+        root.OpenOptions()
+    end)
+    local hint = win:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
+    hint:SetPoint("BOTTOMLEFT", 24, 24)
+    hint:SetText("Steps tick themselves off as you finish them.")
+
+    win:SetScript("OnShow", function()
+        local ok, err = pcall(Window.Fill)
+        if not ok then
+            root.Print("class quests: " .. tostring(err))
+        end
+    end)
+    -- Keep it current while it is open.
+    win:RegisterEvent("QUEST_TURNED_IN")
+    win:RegisterEvent("QUEST_ACCEPTED")
+    win:RegisterEvent("QUEST_REMOVED")
+    win:RegisterEvent("PLAYER_LEVEL_UP")
+    win:RegisterEvent("LEARNED_SPELL_IN_TAB")
+    win:SetScript("OnEvent", function(self)
+        if self:IsShown() then
+            C_Timer.After(0.5, function() pcall(Window.Fill) end)
+        end
+    end)
+    win:Hide()
+end
+
+function Window.Show()
+    if not win then
+        Create()
+    end
+    win:Show()
+end
+
+function Window.Toggle()
+    if win and win:IsShown() then
+        win:Hide()
+    else
+        Window.Show()
+    end
+end
+
+-- Options > Keybindings > AddOns
+function ZyrumisLibram_ToggleWindow()
+    Window.Toggle()
+end
+
+-------------------------------------------------------------------------------
+-- Settings page: only the setting, and a way to the list
+-------------------------------------------------------------------------------
 
 function ClassQuests.BuildPage()
     local UI = root.UI
     local panel = CreateFrame("Frame", "ZyrumisLibramQuestsOptions", UIParent)
     panel:Hide()
     local page = UI.ScrollArea(panel)
-    UI.PageTitle(page, "Class quests", "Every paladin class quest chain for this character. Steps tick themselves off as you finish them.", 16, -16)
+    UI.PageTitle(page, "Class quests", "The checklist itself opens from the minimap button, /libram quests or a key binding.", 16, -16)
     UI.Check(page, "Tell me in chat when a class quest becomes available", "When you reach the level for the next class quest, a line in chat says what it is and who gives it.",
         16, -60,
         function() return root.db.questNotes ~= false end,
         function(v) root.db.questNotes = v end,
         function() return root.FeatureOn("quests") end)
-    emptyNote = UI.Note(page, "Only paladins have class quests here.", 16, -96)
-    panel:SetScript("OnShow", function()
-        UI.RefreshAll()
-        local ok, err = pcall(Fill, page)
-        if not ok then
-            root.Print("class quests: " .. tostring(err))
-        end
-    end)
+    UI.Button(page, "Open the class quests", "Every paladin class quest chain for this character, with the next step and who gives it.",
+        16, -96, 200, function() Window.Show() end)
+    UI.Note(page, "Key binding: Options > Keybindings > AddOns > \"Open the class quests\".", 16, -128)
+    page:SetHeight(180)
+    panel:SetScript("OnShow", function() UI.RefreshAll() end)
     root.RegisterSubPage(panel, "Class quests")
 end
 

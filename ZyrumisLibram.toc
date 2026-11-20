@@ -1,9 +1,9 @@
 ## Interface: 16001
 ## Title: Zyrumi's Libram
-## Notes: Paladin helper: blessing, aura and Righteous Fury reminders with one-key buffing, a Tank / DPS switch, seal and judgement timers, threat for tanks, cleanse buttons, a healer mana warning and a class quest checklist.
+## Notes: Paladin helper: blessing, aura and Righteous Fury reminders with one-key buffing, a Tank / DPS switch, threat for tanks, cleanse buttons, a healer mana warning and a class quest checklist.
 ## Author: Zyrumi
 ## Version: 1.0.0
-## IconTexture: Interface\Icons\INV_Relics_LibramofHope
+## IconTexture: Interface\Icons\INV_Relics_LibramOfTruth
 ## SavedVariables: ZyrumisLibramDB
 ## AddonCompartmentFunc: ZyrumisLibram_OnAddonCompartmentClick
 ## AddonCompartmentFuncOnEnter: ZyrumisLibram_OnAddonCompartmentEnter
@@ -12,7 +12,6 @@
 Core.lua
 Blessings.lua
 TankMode.lua
-Seals.lua
 Threat.lua
 HealerMana.lua
 Cleanse.lua

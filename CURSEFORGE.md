@@ -1,7 +1,7 @@
 # CurseForge project text (paste into the project description)
 
 **Summary (one line):**
-Paladin helper for Forever: blessing and aura reminders with one-key buffing, a Tank / DPS switch, seal timers, threat and more. No setup.
+Paladin helper for Forever: blessing and aura reminders with one-key buffing, a Tank / DPS switch, threat, a class quest checklist and more. No setup.
 
 **Description:**
 
@@ -18,9 +18,6 @@ Zyrumi's Libram is a paladin helper that works the moment you log in. No assignm
 
 **Tank / DPS buttons**
 One click swaps your gear set, your action bar page and Righteous Fury. The Tank button toggles, so a single key switches back and forth.
-
-**Seal and judgement timers**
-Your seal and its time left, "No seal" when you forgot, and your judgement on the target.
 
 **Threat for tanks**
 An icon on each enemy nameplate: yours, slipping, or on someone else, with their name.

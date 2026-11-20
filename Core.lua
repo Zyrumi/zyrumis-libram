@@ -5,7 +5,6 @@
 -- Every part lives in its own file and registers itself here:
 --   Blessings.lua  blessing, aura and Righteous Fury reminders, one-key buffing
 --   TankMode.lua   Tank / DPS buttons (gear set + action bar page)
---   Seals.lua      seal and judgement timers in combat
 --   Threat.lua     threat icons for tanks
 --   HealerMana.lua low healer mana warning after combat
 --   Cleanse.lua    cleanse buttons beside your party frames
@@ -21,16 +20,16 @@ BINDING_HEADER_ZYRUMISLIBRAM = "Zyrumi's Libram"
 _G["BINDING_NAME_CLICK ZyrumisLibramNextBuff:LeftButton"] = "Cast the next buff"
 _G["BINDING_NAME_CLICK ZyrumisLibramTankButton:LeftButton"] = "Toggle tank / DPS"
 _G["BINDING_NAME_CLICK ZyrumisLibramDPSButton:LeftButton"] = "Switch to DPS"
+BINDING_NAME_ZYRUMISLIBRAM_WINDOW = "Open the class quests"
 
 root.TITLE = "Zyrumi's Libram"
-root.ICON = "Interface\\Icons\\INV_Relics_LibramofHope"
+root.ICON = "Interface\\Icons\\INV_Relics_LibramOfTruth"
 local PREFIX = "|cfff5c542Zyrumi's Libram:|r "
 
 local DEFAULTS = {
     features = {
         buffs = true,
         tank = true,
-        seals = true,
         threat = true,
         healerMana = true,
         cleanse = true,
@@ -951,8 +950,8 @@ SlashCmdList.ZYRUMISLIBRAM = function(input)
         root.ResetPositions()
     elseif cmd == "status" and root.Blessings then
         root.Blessings.Report()
-    elseif cmd == "quests" then
-        root.OpenOptions("Class quests")
+    elseif cmd == "quests" and root.Window then
+        root.Window.Show()
     elseif cmd == "healers" and root.HealerMana then
         root.HealerMana.Report()
     elseif cmd == "welcome" then

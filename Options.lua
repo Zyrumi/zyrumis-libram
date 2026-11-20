@@ -1,7 +1,7 @@
 -- Zyrumi's Libram: settings pages (Esc > Options > AddOns > Zyrumi's Libram)
 --   Zyrumi's Libram   parts on/off, frames, minimap button, help
 --   Blessings         which reminders, who gets what, greater blessings
---   Tank and combat   Tank / DPS buttons, seal and judgement timers
+--   Tank / DPS        the Tank / DPS buttons
 --   Class quests      the class quest checklist (ClassQuests.lua)
 
 local ADDON_NAME, root = ...
@@ -38,10 +38,7 @@ local PARTS = {
         note = "Icons for your aura, your own blessing and your group's blessings. Details on the Blessings page." },
     { key = "tank", label = "Tank / DPS buttons",
         tip = "Two buttons above your action bar that swap your gear set, action bar page and Righteous Fury in one click.",
-        note = "One click to switch roles. Set names and bar pages on the Tank and combat page." },
-    { key = "seals", label = "Seal and judgement timers",
-        tip = "During fights: your seal with its time left (or \"No seal\") and your judgement on the target.",
-        note = "Shown in fights only, unless you change that on the Tank and combat page." },
+        note = "One click to switch roles. Set names and bar pages on the Tank / DPS page." },
     { key = "threat", label = "Threat for tanks",
         tip = "In combat: an icon above each enemy nameplate and your target showing if the mob is yours, slipping, or on someone else (and who).",
         note = "Shield = yours, half shield = slipping, warning sign = on someone else (name beside it). Needs enemy nameplates (V)." },
@@ -53,7 +50,7 @@ local PARTS = {
         note = "A coloured edge and a letter (M, P, D) show what you can remove, when the game lets addons see it." },
     { key = "quests", label = "Class quest checklist",
         tip = "Every paladin class quest chain for your faction: what is done, what is next and who gives it. Ticks itself off.",
-        note = "On its own page (Class quests), or /libram quests. A line in chat when a new one becomes available." },
+        note = "Click the minimap button (or /libram quests) to open it. A line in chat when a new one becomes available." },
 }
 
 local function BuildMain()
@@ -87,12 +84,12 @@ local function BuildMain()
     UI.Button(page, "Reset positions", "Puts every frame of this addon back where it started.", x + 170, y, 160,
         function() root.ResetPositions() end)
     y = y - 34
-    UI.Slider(page, "Size", "How big the buff icons, Tank / DPS buttons and seal timers are.", x, y, 0.6, 1.6, 0.05,
+    UI.Slider(page, "Size", "How big the buff icons and the Tank / DPS buttons are.", x, y, 0.6, 1.6, 0.05,
         function() return root.db.scale end,
         function(v) root.db.scale = v end,
         { format = function(v) return ("%d%%"):format(math.floor(v * 100 + 0.5)) end, after = root.ApplyScale })
     y = y - 50
-    UI.Check(page, "Minimap button", "The libram on the edge of the minimap. Click for settings, right-click to move frames, drag to move it.", x, y,
+    UI.Check(page, "Minimap button", "The libram on the edge of the minimap. Click for your class quests, right-click for these settings, drag to move it.", x, y,
         function() return root.MinimapButton and root.MinimapButton.IsShown() end,
         function(v) root.MinimapButton.SetShown(v) end)
     y = y - 24
@@ -238,7 +235,7 @@ local function BuildCombat()
     local T = root.TankMode
     local panel, page = NewPanel("ZyrumisLibramCombatOptions")
     local x, y = 16, -16
-    UI.PageTitle(page, "Tank and combat", "The Tank / DPS buttons and the seal and judgement timers.", x, y)
+    UI.PageTitle(page, "Tank / DPS", "Two buttons above your action bar that switch gear, action bar page and Righteous Fury.", x, y)
     y = y - 52
 
     UI.Heading(page, "Tank / DPS buttons", x, y)
@@ -281,22 +278,8 @@ local function BuildCombat()
         function(v) root.db.tank.fury = v; Apply() end)
     y = y - 36
 
-    UI.Heading(page, "Seal and judgement timers", x, y)
-    y = y - 26
-    UI.Check(page, "Show the judgement timer", "Your judgement on your target and how long it has left.", x, y,
-        function() return root.db.sealsJudgement ~= false end,
-        function(v) root.db.sealsJudgement = v; root.Seals.Update() end)
-    y = y - 26
-    UI.Check(page, "Show them out of combat too", "Normally they only show during fights.", x, y,
-        function() return root.db.sealsAlways == true end,
-        function(v) root.db.sealsAlways = v; root.Seals.Update() end)
-    y = y - 30
-    UI.Note(page, "In fights the game hides most buff details from addons, so the times come from your own casts. "
-        .. "A judgement's real length is learned the first time the game shows it.", x, y, 540)
-    y = y - 40
-
     page:SetHeight(-y + 16)
-    root.RegisterSubPage(panel, "Tank and combat")
+    root.RegisterSubPage(panel, "Tank / DPS")
 end
 
 local events = CreateFrame("Frame")
