@@ -67,8 +67,11 @@ local function Tooltip(owner, anchor)
     if not root.IsPaladin() then
         GameTooltip:AddLine("Only does something on a paladin.", 1, 0.5, 0.5, true)
     end
-    GameTooltip:AddLine("Click: class quests", nil, nil, nil, true)
-    GameTooltip:AddLine("Right-click: settings", nil, nil, nil, true)
+    GameTooltip:AddLine("Left-click: Class quests", nil, nil, nil, true)
+    GameTooltip:AddLine("Right-click: Settings", nil, nil, nil, true)
+    if owner == button then
+        GameTooltip:AddLine("Drag: Move", nil, nil, nil, true)
+    end
     GameTooltip:Show()
 end
 

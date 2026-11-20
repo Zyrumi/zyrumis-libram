@@ -70,18 +70,41 @@ local function StepInLog(step)
     return false
 end
 
-local function RaceBit()
-    -- (Safe passes on two results; the race ID is the third.)
-    local ok, _, _, raceID = pcall(UnitRace, "player")
+-- Race ID (third result of UnitRace) and race name, or nil.
+-- (Safe passes on two results only, so this calls pcall itself.)
+local function RaceInfo()
+    local ok, name, _, raceID = pcall(UnitRace, "player")
     if not ok or root.IsSecret(raceID) or type(raceID) ~= "number" or raceID < 1 then
-        return nil
+        return nil, (ok and not root.IsSecret(name)) and name or nil
     end
-    return 2 ^ (raceID - 1)
+    return raceID, name
+end
+
+local function RaceBit()
+    local raceID = RaceInfo()
+    return raceID and 2 ^ (raceID - 1) or nil
+end
+
+-- The faction as "Alliance" or "Horde". If the game won't say, the race
+-- tells (classic races only).
+local RACE_FACTION = { [1] = "Alliance", [3] = "Alliance", [4] = "Alliance", [7] = "Alliance",
+    [2] = "Horde", [5] = "Horde", [6] = "Horde", [8] = "Horde" }
+local function Faction()
+    local f = Safe(UnitFactionGroup, "player")
+    if type(f) == "string" then
+        f = f:lower()
+        if f == "alliance" then
+            return "Alliance"
+        elseif f == "horde" then
+            return "Horde"
+        end
+    end
+    return RACE_FACTION[RaceInfo() or 0]
 end
 
 -- The milestones for this character, in level order.
 function ClassQuests.Mine()
-    local faction = Safe(UnitFactionGroup, "player")
+    local faction = Faction()
     local bit = RaceBit()
     local out = {}
     for _, m in ipairs(root.QUEST_DATA or {}) do
@@ -91,6 +114,15 @@ function ClassQuests.Mine()
         end
     end
     return out
+end
+
+-- What the checklist read, for when it comes up empty.
+function ClassQuests.Diagnose()
+    local raw = Safe(UnitFactionGroup, "player")
+    local raceID, raceName = RaceInfo()
+    return ("faction %s (game says %s), race %s (id %s), class %s, %d chains loaded"):format(
+        tostring(Faction()), tostring(raw), tostring(raceName), tostring(raceID),
+        tostring(root.PlayerClass()), #(root.QUEST_DATA or {}))
 end
 
 -- How a milestone stands: { state, next, nextIndex, inLog, doneCount }
@@ -269,6 +301,10 @@ function Window.Fill()
     for i = #list + 1, #rows do
         rows[i]:Hide()
     end
+    if #list == 0 then
+        emptyNote:SetText(root.IsPaladin() and ("No class quest chains matched this character. Please report this with what it read:\n"
+            .. ClassQuests.Diagnose()) or "Only paladins have class quests.")
+    end
     emptyNote:SetShown(#list == 0)
     summary:SetText(#list > 0 and ("%d of %d chains done. Hover a chain to see all its steps."):format(done, #list) or "")
     content:SetHeight(math.max(1, #list * ROW_H))
@@ -330,7 +366,8 @@ local function Create()
     content = root.UI.ScrollArea(inset)
     emptyNote = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     emptyNote:SetPoint("TOPLEFT", 8, -8)
-    emptyNote:SetText("Only paladins have class quests.")
+    emptyNote:SetPoint("RIGHT", content, "RIGHT", -8, 0)
+    emptyNote:SetJustifyH("LEFT")
 
     local settings = CreateFrame("Button", nil, win, "UIPanelButtonTemplate")
     settings:SetSize(120, 24)
