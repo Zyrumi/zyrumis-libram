@@ -27,7 +27,28 @@ def extra_entity(prefix, i, spawnField, zoneField):
     nm = e.get(1); nm = nm.decode() if isinstance(nm, bytes) else nm
     return {"name": nm, "zone": e.get(zoneField), "spawn": first}
 
+# Wowhead Forever quest pages (wowhead_check.json, read 2026-11-20) win for quest givers and places.
+import os
+WH = {}
+if os.path.exists("wowhead_check.json"):
+    WH = {int(k): v for k, v in json.load(open("wowhead_check.json", encoding="utf-8")).items()}
+
 def info(qid):
+    name, lvl, giver = info_questie(qid)
+    w = WH.get(qid)
+    if w:
+        if w.get("title"):
+            name = w["title"]
+        if w.get("req"):
+            lvl = int(w["req"][0])
+        st, pt = w.get("start"), w.get("startPt")
+        if st:
+            giver = {"name": st[2].strip(), "zone": pt and pt["zone"], "spawn": None}
+            if pt and pt.get("coord"):
+                giver["spawn"] = [pt["zone"], pt["coord"]]
+    return name, lvl, giver
+
+def info_questie(qid):
     if qid in Q:
         q = Q[qid]
         name, lvl = q["name"], q.get("reqLevel") or 1
@@ -110,7 +131,8 @@ def step_lua(step):
 used = set()
 out = ["-- Zyrumi's Libram: paladin class quest data (generated, do not edit by hand)",
        "-- Quest IDs, names, levels, order and quest givers for World of Warcraft: Forever,",
-       "-- from QuestieDB 1.1.3 (Forever) and Wowhead's Forever database, 2026-11-20.",
+       "-- from Wowhead's Forever database (quest pages, 2026-11-20), QuestieDB 1.1.3 (Forever) where",
+       "-- Wowhead names no quest giver.",
        "-- A step lists one or more quest IDs; any one of them counts (different",
        "-- trainers or branches). zone is an area ID; x, y are map coordinates.",
        "", "local ADDON_NAME, root = ...", "", "root.QUEST_DATA = {"]
