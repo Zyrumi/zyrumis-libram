@@ -122,9 +122,15 @@ function root.AddonLoaded(folder)
     return false
 end
 
+-- Your class never changes, but in combat the game can hide it from addons:
+-- remember it whenever it can be read.
+local knownClass
 function root.PlayerClass()
     local _, class = Safe(UnitClass, "player")
-    return type(class) == "string" and class or nil
+    if type(class) == "string" then
+        knownClass = class
+    end
+    return knownClass
 end
 
 function root.IsPaladin()
@@ -895,6 +901,7 @@ events:SetScript("OnEvent", function(_, event, arg1)
             root.db = MergeDefaults(DEFAULTS, ZyrumisLibramDB)
         end
     elseif event == "PLAYER_LOGIN" then
+        root.PlayerClass() -- read it while it can be read
         pcall(root.MainCategory)
         if root.IsPaladin() and not root.db.welcomed then
             C_Timer.After(4, function()

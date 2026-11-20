@@ -72,12 +72,17 @@ end
 
 -- Race ID (third result of UnitRace) and race name, or nil.
 -- (Safe passes on two results only, so this calls pcall itself.)
+-- Remembered once read: in combat the game can hide them from addons.
+local knownRaceID, knownRaceName, knownFaction
 local function RaceInfo()
     local ok, name, _, raceID = pcall(UnitRace, "player")
-    if not ok or root.IsSecret(raceID) or type(raceID) ~= "number" or raceID < 1 then
-        return nil, (ok and not root.IsSecret(name)) and name or nil
+    if ok and not root.IsSecret(raceID) and type(raceID) == "number" and raceID >= 1 then
+        knownRaceID = raceID
+        if type(name) == "string" and not root.IsSecret(name) then
+            knownRaceName = name
+        end
     end
-    return raceID, name
+    return knownRaceID, knownRaceName
 end
 
 local function RaceBit()
@@ -94,12 +99,12 @@ local function Faction()
     if type(f) == "string" then
         f = f:lower()
         if f == "alliance" then
-            return "Alliance"
+            knownFaction = "Alliance"
         elseif f == "horde" then
-            return "Horde"
+            knownFaction = "Horde"
         end
     end
-    return RACE_FACTION[RaceInfo() or 0]
+    return knownFaction or RACE_FACTION[RaceInfo() or 0]
 end
 
 -- The milestones for this character, in level order.
@@ -302,12 +307,20 @@ function Window.Fill()
         rows[i]:Hide()
     end
     if #list == 0 then
-        emptyNote:SetText(root.IsPaladin() and ("No class quest chains matched this character. Please report this with what it read:\n"
-            .. ClassQuests.Diagnose()) or "Only paladins have class quests.")
+        if root.IsPaladin() then
+            local diag = ClassQuests.Diagnose()
+            emptyNote:SetText("No class quest chains matched this character. Please report this with what it read:\n\n" .. diag)
+            if not Window.reported then
+                Window.reported = true
+                root.Print("class quests found nothing for this character: " .. diag)
+            end
+        else
+            emptyNote:SetText("Only paladins have class quests.")
+        end
     end
     emptyNote:SetShown(#list == 0)
     summary:SetText(#list > 0 and ("%d of %d chains done. Hover a chain to see all its steps."):format(done, #list) or "")
-    content:SetHeight(math.max(1, #list * ROW_H))
+    content:SetHeight(math.max(120, #list * ROW_H))
 end
 
 local function SavePosition()
@@ -366,7 +379,7 @@ local function Create()
     content = root.UI.ScrollArea(inset)
     emptyNote = content:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     emptyNote:SetPoint("TOPLEFT", 8, -8)
-    emptyNote:SetPoint("RIGHT", content, "RIGHT", -8, 0)
+    emptyNote:SetWidth(520)
     emptyNote:SetJustifyH("LEFT")
 
     local settings = CreateFrame("Button", nil, win, "UIPanelButtonTemplate")
@@ -446,7 +459,12 @@ end
 
 local events = CreateFrame("Frame")
 events:RegisterEvent("PLAYER_LEVEL_UP")
-events:SetScript("OnEvent", function(_, _, level)
+events:RegisterEvent("PLAYER_LOGIN")
+events:SetScript("OnEvent", function(_, event, level)
+    if event == "PLAYER_LOGIN" then
+        Faction() -- read faction and race while they can be read
+        return
+    end
     if not root.db or not root.IsPaladin() then
         return
     end
