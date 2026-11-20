@@ -112,6 +112,20 @@ M = [
         [97174, 97175, 97177, 97176, 97182, 97178, 97179, 97183, 97184, 97185], [97186, 97180]),
 ]
 
+# Reward items from the chain's last quest (Wowhead Forever quest pages, 2026-11-20).
+# choice: the quest lets you pick one of them.
+REWARD_ITEMS = {
+    ("verigan", A): (6953,),                  # 1806 The Test of Righteousness
+    ("divinestorm", A): (277205,),            # 78093 Return to Delgren
+    ("vindication", A): (277236,),            # 79970 Aeonas the Vindicated
+    ("whisper", A): (221518,),                # 82135 The Price of Hope
+    ("mightstone", A): (20504, 20505, 20512), # 8418 Forging the Mightstone, pick one
+    ("thane", A): (227935,),                  # 84332 A Thane's Gratitude
+    ("moonsilver", H): (268484, 267369),      # 95126 The Moonsilver Blade, then 95140 Old Fire-Eye
+    ("mourning", H): (286408,),               # 99187 The Reliquary of Tyr
+}
+CHOICE = {("mightstone", A)}
+
 def lua_str(s):
     return '"' + str(s).replace("\\", "\\\\").replace('"', '\\"') + '"'
 
@@ -142,6 +156,9 @@ for key, title, reward, fac, races, spell, steps, side in M:
     out.append("        key = %s, title = %s, reward = %s, faction = %s, level = %d,"
                % (lua_str(key), lua_str(title), lua_str(reward), lua_str(fac), lvl))
     if races: out.append("        races = %d," % races)
+    if (key, fac) in REWARD_ITEMS:
+        out.append("        items = { " + ", ".join(map(str, REWARD_ITEMS[(key, fac)])) + " },")
+        if (key, fac) in CHOICE: out.append("        choice = true,")
     if isinstance(spell, tuple): out.append("        spell = { " + ", ".join(map(str, spell)) + " },")
     elif spell: out.append("        spell = %d," % spell)
     out.append("        steps = {")

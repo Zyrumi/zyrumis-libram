@@ -52,6 +52,93 @@ function ClassQuests.Where(step)
     return step.giver
 end
 
+-- Map pins. The data has area IDs; the world map wants its own map IDs.
+-- These are the usual ones, checked against the map's name when used; if a
+-- client numbers its maps differently, the zone is found by name instead.
+local UIMAP = {
+    [1] = 1426, [11] = 1437, [12] = 1429, [15] = 1445, [28] = 1422, [38] = 1432, [40] = 1436,
+    [85] = 1420, [130] = 1421, [139] = 1423, [148] = 1439, [267] = 1424, [331] = 1440,
+    [361] = 1448, [405] = 1443, [1497] = 1458, [1519] = 1453, [1537] = 1455, [1637] = 1454,
+}
+local mapCache = {}
+
+local function MapName(id)
+    local info = Safe(C_Map and C_Map.GetMapInfo, id)
+    return type(info) == "table" and info.name or nil
+end
+
+local function FindMapByName(name, parent, depth)
+    local kids = Safe(C_Map and C_Map.GetMapChildrenInfo, parent)
+    if type(kids) ~= "table" then
+        return nil
+    end
+    for _, info in ipairs(kids) do
+        if info.name == name then
+            return info.mapID
+        end
+    end
+    if depth > 0 then
+        for _, info in ipairs(kids) do
+            local found = FindMapByName(name, info.mapID, depth - 1)
+            if found then
+                return found
+            end
+        end
+    end
+    return nil
+end
+
+local function MapFor(zone)
+    if mapCache[zone] ~= nil then
+        return mapCache[zone] or nil
+    end
+    local name = ZoneName(zone)
+    local id = UIMAP[zone]
+    if id and name and MapName(id) ~= name then
+        id = nil
+    end
+    if not id and name then
+        id = FindMapByName(name, 947, 2) -- Azeroth, its continents, their zones
+    end
+    mapCache[zone] = id or false
+    return id
+end
+
+-- Puts a pin where a step starts: the game's own map pin (with the arrow on
+-- screen), and a TomTom arrow too when TomTom is installed.
+function ClassQuests.PinStep(step)
+    local where = ClassQuests.Where(step) or QuestName(step)
+    local mapID = step.x and MapFor(step.zone)
+    if not mapID then
+        if step.giver then
+            root.Print(("no map spot for \"%s\": it starts with %s."):format(QuestName(step), where))
+        else
+            root.Print(("no map spot for \"%s\": you get it when you finish the step before."):format(QuestName(step)))
+        end
+        return false
+    end
+    local x, y = step.x / 100, step.y / 100
+    local pinned = pcall(function()
+        if C_Map.CanSetUserWaypointOnMap and not C_Map.CanSetUserWaypointOnMap(mapID) then
+            error("no pins on this map")
+        end
+        C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(mapID, x, y))
+        if C_SuperTrack and C_SuperTrack.SetSuperTrackedUserWaypoint then
+            C_SuperTrack.SetSuperTrackedUserWaypoint(true)
+        end
+    end)
+    if TomTom and TomTom.AddWaypoint then
+        local ok = pcall(TomTom.AddWaypoint, TomTom, mapID, x, y, { title = step.giver, from = root.TITLE })
+        pinned = pinned or ok
+    end
+    if pinned then
+        root.Print("map pin set: " .. where .. ".")
+    else
+        root.Print("this client won't take a map pin there. Head to " .. where .. ".")
+    end
+    return pinned
+end
+
 local function StepDone(step)
     for _, id in ipairs(step.ids) do
         if Completed(id) then
@@ -194,6 +281,91 @@ local STATE_TEXT = {
     later = "|cffa0a0a0Level %d|r",
 }
 local ROW_H = 60
+local REWARD_SIZE = 34
+
+-- The reward icons for a chain: items from the data, or the spell it teaches.
+local function Rewards(m)
+    local list = {}
+    for _, id in ipairs(m.items or {}) do
+        list[#list + 1] = { kind = "item", id = id }
+    end
+    if #list == 0 and m.spell then
+        for _, id in ipairs(type(m.spell) == "table" and m.spell or { m.spell }) do
+            local name = Safe(C_Spell and C_Spell.GetSpellName, id)
+            if type(name) == "string" and name ~= "" then
+                list[1] = { kind = "spell", id = id }
+                break
+            end
+        end
+    end
+    return list
+end
+
+local function RewardIcon(kind, id)
+    local icon
+    if kind == "item" then
+        icon = Safe(C_Item and C_Item.GetItemIconByID, id) or Safe(GetItemIcon, id)
+        if not icon and C_Item and C_Item.RequestLoadItemDataByID then
+            pcall(C_Item.RequestLoadItemDataByID, id) -- shows next time the list fills
+        end
+    else
+        icon = Safe(C_Spell and C_Spell.GetSpellTexture, id)
+    end
+    return icon or "Interface\\Icons\\INV_Misc_QuestionMark"
+end
+
+local function RewardTooltip(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    if self.kind == "item" then
+        GameTooltip:SetItemByID(self.id)
+    else
+        GameTooltip:SetSpellByID(self.id)
+    end
+    if self.choice then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine("You pick one of these as the reward.", 0.6, 0.6, 0.6, true)
+    end
+    GameTooltip:Show()
+end
+
+local function RewardButton(r, i)
+    local b = r.rewards[i]
+    if b then
+        return b
+    end
+    b = CreateFrame("Frame", nil, r)
+    b:SetSize(REWARD_SIZE, REWARD_SIZE)
+    b:EnableMouse(true)
+    b.icon = b:CreateTexture(nil, "ARTWORK")
+    b.icon:SetAllPoints()
+    b.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+    b.border = b:CreateTexture(nil, "OVERLAY")
+    b.border:SetAllPoints()
+    b.border:SetTexture("Interface\\Common\\WhiteIconFrame")
+    b:SetScript("OnEnter", RewardTooltip)
+    b:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    -- Clicking an icon pins the chain too, like the rest of the row.
+    b:SetScript("OnMouseUp", function(self, button)
+        local onUp = r:GetScript("OnMouseUp")
+        if onUp then
+            onUp(r, button)
+        end
+    end)
+    r.rewards[i] = b
+    return b
+end
+
+-- Item quality colour on the icon's border (the tooltip names the quality too).
+local function QualityBorder(b, kind, id)
+    local quality = kind == "item" and Safe(C_Item and C_Item.GetItemQualityByID, id)
+    local c = quality and ITEM_QUALITY_COLORS and ITEM_QUALITY_COLORS[quality]
+    if c then
+        b.border:SetVertexColor(c.r, c.g, c.b)
+        b.border:Show()
+    else
+        b.border:Hide()
+    end
+end
 
 local Window = {}
 root.Window = Window
@@ -229,6 +401,10 @@ local function RowTooltip(self)
             GameTooltip:AddDoubleLine(QuestName(sq), StepDone(sq) and "|cff7fd17fdone|r" or "", 1, 1, 1)
         end
     end
+    if st.state ~= "done" then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine("Left-click: Map pin for the next step", 1, 1, 1, true)
+    end
     GameTooltip:Show()
 end
 
@@ -244,6 +420,18 @@ local function Row(i)
     r:EnableMouse(true)
     r:SetScript("OnEnter", RowTooltip)
     r:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    r:SetScript("OnMouseUp", function(self, button)
+        if button ~= "LeftButton" or not self.milestone then
+            return
+        end
+        local st = ClassQuests.Status(self.milestone)
+        if st.state == "done" then
+            root.Print(("\"%s\" is done."):format(self.milestone.title))
+        else
+            ClassQuests.PinStep(st.next)
+        end
+    end)
+    r.rewards = {}
     r.bg = r:CreateTexture(nil, "BACKGROUND")
     r.bg:SetAllPoints()
     r.bg:SetColorTexture(1, 1, 1, i % 2 == 0 and 0.04 or 0.08)
@@ -284,7 +472,29 @@ function Window.Fill()
         end
         local first = m.steps[1]
         r.state:SetText(st.state == "later" and STATE_TEXT.later:format(st.next.level) or STATE_TEXT[st.state])
-        r.title:SetText(("%s  |cffa0a0a0level %d, %s|r"):format(m.title, m.level, m.reward))
+        local rewards = Rewards(m)
+        for k, rw in ipairs(rewards) do
+            local b = RewardButton(r, k)
+            -- In order, left to right, ending at the row's right edge.
+            b:SetPoint("RIGHT", r, "RIGHT", -8 - (#rewards - k) * (REWARD_SIZE + 6), 0)
+            b.kind, b.id, b.choice = rw.kind, rw.id, m.choice and #rewards > 1
+            b.icon:SetTexture(RewardIcon(rw.kind, rw.id))
+            QualityBorder(b, rw.kind, rw.id)
+            b:Show()
+        end
+        for k = #rewards + 1, #r.rewards do
+            r.rewards[k]:Hide()
+        end
+        local right = -8 - #rewards * (REWARD_SIZE + 6)
+        for _, fs in ipairs({ r.title, r.line1, r.line2 }) do
+            fs:SetPoint("RIGHT", r, "RIGHT", right, 0)
+        end
+        if #rewards > 0 then
+            local label = m.choice and #rewards > 1 and ", pick one" or ""
+            r.title:SetText(("%s  |cffa0a0a0level %d%s|r"):format(m.title, m.level, label))
+        else
+            r.title:SetText(("%s  |cffa0a0a0level %d, %s|r"):format(m.title, m.level, m.reward))
+        end
         if st.state == "done" then
             r.line1:SetText(("All %d steps done."):format(#m.steps))
             r.line2:SetText("")
@@ -319,7 +529,7 @@ function Window.Fill()
         end
     end
     emptyNote:SetShown(#list == 0)
-    summary:SetText(#list > 0 and ("%d of %d chains done. Hover a chain to see all its steps."):format(done, #list) or "")
+    summary:SetText(#list > 0 and ("%d of %d chains done. Hover a chain for its steps, click it for a map pin."):format(done, #list) or "")
     content:SetHeight(math.max(120, #list * ROW_H))
 end
 
@@ -393,7 +603,7 @@ local function Create()
     end)
     local hint = win:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
     hint:SetPoint("BOTTOMLEFT", 24, 24)
-    hint:SetText("Steps tick themselves off as you finish them.")
+    hint:SetText("Steps tick themselves off as you finish them. Hover a reward to see it.")
 
     win:SetScript("OnShow", function()
         local ok, err = pcall(Window.Fill)

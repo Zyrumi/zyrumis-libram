@@ -33,7 +33,7 @@ Click the minimap button to see every paladin class quest chain on Forever for y
 - **Alliance:** Redemption, Verigan's Fist, Cloak of the Divine Storm, Pauldrons of Vindication, Whisper of Aeonas, the Mightstone, Hammer of the Fallen Thane, the Warhorse and the Charger
 - **Horde:** Bandarion Keep, Redemption, the Moonsilver Blade and Wolfsbane, the Warhorse, the Sword of Mourning and the Forsaken Charger
 
-Each chain shows its next step, who gives it and where they stand. Steps tick themselves off as you finish them, and a line in chat tells you when a new class quest opens up at your level.
+Each chain shows its next step, who gives it and where they stand; click it and a map pin goes there. The reward shows as the real item, so you can hover it to see its stats. Steps tick themselves off as you finish them, and a line in chat tells you when a new class quest opens up at your level.
 
 ### For tanks and groups
 

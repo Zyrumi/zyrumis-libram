@@ -30,6 +30,8 @@ A paladin helper for World of Warcraft: Forever. It works the moment you log in:
 **Class quest checklist**
 - Every paladin class quest chain for your faction and race on Forever: Redemption, Verigan's Fist, the new Cloak of the Divine Storm, Pauldrons of Vindication, Whisper, the Mightstone, Hammer of the Fallen Thane, the Warhorse and the Charger for the Alliance; Bandarion Keep, Redemption, the Moonsilver Blade and Wolfsbane, the Warhorse, the Sword of Mourning and the Forsaken Charger for the Horde.
 - Shows what is done, the next step, and who gives it and where. Ticks itself off as you finish quests.
+- Click a chain to put a map pin (and a TomTom arrow, if you use TomTom) on where its next step starts.
+- Each chain shows its reward as the real item or spell; hover it for the game's own tooltip.
 - A line in chat when you reach the level for a new one.
 
 ## Settings

@@ -50,6 +50,7 @@ root.QUEST_DATA = {
     },
     {
         key = "verigan", title = "Verigan's Fist", reward = "Verigan's Fist (two-handed mace)", faction = "Alliance", level = 20,
+        items = { 6953 },
         steps = {
             { ids = { 1793, 1794 }, name = "The Tome of Valor", level = 20, giver = "Duthorian Rall", zone = 1519, x = 50.6, y = 47.4 },
             { ids = { 1649 }, name = "The Tome of Valor", level = 20, giver = "Tome of Valor" },
@@ -67,6 +68,7 @@ root.QUEST_DATA = {
     },
     {
         key = "divinestorm", title = "Cloak of the Divine Storm", reward = "Cloak of the Divine Storm", faction = "Alliance", level = 22,
+        items = { 277205 },
         steps = {
             { ids = { 78088 }, name = "A Strange Artifact", level = 22, giver = "Strange Orb", zone = 148, x = 56.2, y = 26.4 },
             { ids = { 78089 }, name = "Advice From Stormwind", level = 22, giver = "Delgren the Purifier", zone = 331, x = 26.2, y = 38.6 },
@@ -78,6 +80,7 @@ root.QUEST_DATA = {
     },
     {
         key = "vindication", title = "Pauldrons of Vindication", reward = "Pauldrons of Vindication", faction = "Alliance", level = 35,
+        items = { 277236 },
         steps = {
             { ids = { 96438 }, name = "Battle at the Mannoroc Coven", level = 35, giver = "Katherine the Pure", zone = 1519, x = 48.6, y = 49.2 },
             { ids = { 79939 }, name = "The Broken Hammer", level = 35, giver = "Broken Warhammer", zone = 405, x = 52.7, y = 84.8 },
@@ -98,6 +101,7 @@ root.QUEST_DATA = {
     },
     {
         key = "whisper", title = "Whisper of Aeonas", reward = "Whisper", faction = "Alliance", level = 44,
+        items = { 221518 },
         steps = {
             { ids = { 81762 }, name = "Some Good News", level = 45, giver = "Aeonas the Vindicated", zone = 1519, x = 48.6, y = 49.2 },
             { ids = { 81764 }, name = "The Mysterious Merchant", level = 45, giver = "Katherine the Pure", zone = 1519, x = 48.6, y = 49.2 },
@@ -114,6 +118,8 @@ root.QUEST_DATA = {
     },
     {
         key = "mightstone", title = "The Mightstone", reward = "Mightstone weapon", faction = "Alliance", level = 50,
+        items = { 20504, 20505, 20512 },
+        choice = true,
         steps = {
             { ids = { 8415 }, name = "Chillwind Point", level = 50, giver = "Lord Grayson Shadowbreaker", zone = 1519, x = 48.6, y = 50.0 },
             { ids = { 8414 }, name = "Dispelling Evil", level = 50, giver = "Commander Ashlam Valorfist", zone = 28, x = 42.8, y = 84.0 },
@@ -123,6 +129,7 @@ root.QUEST_DATA = {
     },
     {
         key = "thane", title = "Hammer of the Fallen Thane", reward = "Hammer of the Fallen Thane", faction = "Alliance", level = 54,
+        items = { 227935 },
         steps = {
             { ids = { 84318 }, name = "Oi!", level = 54, giver = "Orthas", zone = 139, x = 61.2, y = 69.2 },
             { ids = { 84319 }, name = "Oh No Ye Don't!", level = 54, giver = "Orthas", zone = 139, x = 61.2, y = 69.2 },
@@ -182,6 +189,7 @@ root.QUEST_DATA = {
     },
     {
         key = "moonsilver", title = "Moonsilver Blade and Wolfsbane", reward = "Moonsilver Blade, then Wolfsbane", faction = "Horde", level = 18,
+        items = { 268484, 267369 },
         steps = {
             { ids = { 91858 }, name = "Diplomatic Incident", level = 18, giver = "Danitha Morr", zone = 85, x = 22.0, y = 44.6 },
             { ids = { 91859 }, name = "A Curious Pair", level = 18, giver = "Trevan Rol", zone = 130, x = 43.4, y = 41.0 },
@@ -210,6 +218,7 @@ root.QUEST_DATA = {
     },
     {
         key = "mourning", title = "Sword of Mourning", reward = "Sword of Mourning", faction = "Horde", level = 50,
+        items = { 286408 },
         steps = {
             { ids = { 93030 }, name = "The Knight of Mourning", level = 50, giver = "Knight of Mourning", zone = 85, x = 17.6, y = 67.4 },
             { ids = { 99187 }, name = "The Reliquary of Tyr", level = 50, giver = "Knight of Mourning", zone = 85, x = 17.6, y = 67.4 },
