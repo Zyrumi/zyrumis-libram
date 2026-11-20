@@ -2,6 +2,7 @@
 --   Zyrumi's Libram   parts on/off, frames, minimap button, help
 --   Blessings         which reminders, who gets what, greater blessings
 --   Tank and combat   Tank / DPS buttons, seal and judgement timers
+--   Class quests      the class quest checklist (ClassQuests.lua)
 
 local ADDON_NAME, root = ...
 
@@ -53,6 +54,9 @@ local PARTS = {
     { key = "cleanse", label = "Cleanse buttons",
         tip = "A small button beside your own frame and each party member's frame. Click it to Cleanse that person.",
         note = "A coloured edge and a letter (M, P, D) show what you can remove, when the game lets addons see it." },
+    { key = "quests", label = "Class quest checklist",
+        tip = "Every paladin class quest chain for your faction: what is done, what is next and who gives it. Ticks itself off.",
+        note = "On its own page (Class quests), or /libram quests. A line in chat when a new one becomes available." },
 }
 
 local function BuildMain()
@@ -302,7 +306,7 @@ local events = CreateFrame("Frame")
 events:RegisterEvent("PLAYER_LOGIN")
 events:SetScript("OnEvent", function()
     UI = root.UI
-    for _, build in ipairs({ BuildMain, BuildBlessings, BuildCombat }) do
+    for _, build in ipairs({ BuildMain, BuildBlessings, BuildCombat, root.ClassQuests.BuildPage }) do
         local ok, err = pcall(build)
         if not ok then
             root.Print("settings page: " .. tostring(err))

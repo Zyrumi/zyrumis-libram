@@ -10,6 +10,7 @@
 --   HealerMana.lua low healer mana warning after combat
 --   Cleanse.lua    cleanse buttons beside your party frames
 --   Reagents.lua   Symbol of Kings restock at vendors
+--   ClassQuests.lua class quest checklist (data in QuestData.lua)
 --   Options.lua    the settings pages
 --   Minimap.lua    minimap button and the minimap's addon menu
 
@@ -33,6 +34,7 @@ local DEFAULTS = {
         threat = true,
         healerMana = true,
         cleanse = true,
+        quests = true,
     },
     minimap = { angle = 210, hide = false },
     positions = {},
@@ -927,6 +929,7 @@ local HELP = {
     "/libram move  unlock the frames to move them (/libram lock to lock)",
     "/libram reset  put every frame back where it started",
     "/libram status  what the buff reminders see right now",
+    "/libram quests  your class quest checklist",
     "/libram healers  why the healer mana warning shows or not",
     "/libram welcome  show the welcome window again",
 }
@@ -948,6 +951,8 @@ SlashCmdList.ZYRUMISLIBRAM = function(input)
         root.ResetPositions()
     elseif cmd == "status" and root.Blessings then
         root.Blessings.Report()
+    elseif cmd == "quests" then
+        root.OpenOptions("Class quests")
     elseif cmd == "healers" and root.HealerMana then
         root.HealerMana.Report()
     elseif cmd == "welcome" then

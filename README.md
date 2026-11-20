@@ -30,6 +30,11 @@ A paladin helper for World of Warcraft: Forever. It works the moment you log in:
 **Cleanse buttons**
 - A small button beside your own and each party member's frame. Click it to Cleanse that person, no targeting.
 
+**Class quest checklist**
+- Every paladin class quest chain for your faction and race on Forever: Redemption, Verigan's Fist, the new Cloak of the Divine Storm, Pauldrons of Vindication, Whisper, the Mightstone, Hammer of the Fallen Thane, the Warhorse and the Charger for the Alliance; Bandarion Keep, Redemption, the Moonsilver Blade and Wolfsbane, the Warhorse, the Sword of Mourning and the Forsaken Charger for the Horde.
+- Shows what is done, the next step, and who gives it and where. Ticks itself off as you finish quests.
+- A line in chat when you reach the level for a new one.
+
 ## Settings
 
 Esc > Options > AddOns > Zyrumi's Libram, the minimap button, the minimap's addon menu, or `/libram`.
@@ -40,6 +45,7 @@ Esc > Options > AddOns > Zyrumi's Libram, the minimap button, the minimap's addo
 | `/libram move` | unlock the frames to move them (`/libram lock` to lock) |
 | `/libram reset` | put every frame back where it started |
 | `/libram status` | what the buff reminders see right now |
+| `/libram quests` | your class quest checklist |
 | `/libram healers` | why the healer mana warning shows or not |
 | `/libram welcome` | show the welcome window again |
 

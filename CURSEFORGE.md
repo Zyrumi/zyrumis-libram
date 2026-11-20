@@ -31,6 +31,9 @@ Tanking? A warning when a healer is under 20% mana, so you don't pull too early.
 **Cleanse buttons**
 A small button beside each party frame. One click cleanses that person.
 
+**Class quest checklist**
+Every paladin class quest chain on Forever for your faction and race, including the new Forsaken paladin chains and the Charger. See what is done, what is next and exactly who gives it and where. It ticks itself off, and tells you in chat when a new one opens up.
+
 Everything can be moved, resized, switched off and changed in Options > AddOns > Zyrumi's Libram, from the minimap button or with /libram.
 
 Works with any client language for spell names. Raid blessings are left to PallyPower when it is loaded.
