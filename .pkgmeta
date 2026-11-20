@@ -1,0 +1,9 @@
+# CurseForge / BigWigs packager settings. The package holds one folder named
+# like the .toc, with only what the game needs (same as tools/build_zip.py).
+package-as: ZyrumisLibram
+
+ignore:
+  - tools
+  - art
+  - CURSEFORGE.md
+  - .gitignore
