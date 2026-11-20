@@ -332,6 +332,7 @@ end
 
 local function Create()
     win = CreateFrame("Frame", "ZyrumisLibramWindow", UIParent, "BackdropTemplate")
+    win:Hide()
     win:SetSize(600, 520)
     win:SetFrameStrata("HIGH")
     win:SetBackdrop({
@@ -400,25 +401,34 @@ local function Create()
             root.Print("class quests: " .. tostring(err))
         end
     end)
-    -- Keep it current while it is open.
-    win:RegisterEvent("QUEST_TURNED_IN")
-    win:RegisterEvent("QUEST_ACCEPTED")
-    win:RegisterEvent("QUEST_REMOVED")
-    win:RegisterEvent("PLAYER_LEVEL_UP")
-    win:RegisterEvent("LEARNED_SPELL_IN_TAB")
+    -- Keep it current while it is open. Each event is asked for on its own:
+    -- an event this client doesn't have must not stop the rest.
+    for _, e in ipairs({ "QUEST_TURNED_IN", "QUEST_ACCEPTED", "QUEST_REMOVED", "PLAYER_LEVEL_UP",
+        "LEARNED_SPELL_IN_SKILL_LINE", "LEARNED_SPELL_IN_TAB", "SPELLS_CHANGED" }) do
+        pcall(win.RegisterEvent, win, e)
+    end
     win:SetScript("OnEvent", function(self)
         if self:IsShown() then
             C_Timer.After(0.5, function() pcall(Window.Fill) end)
         end
     end)
-    win:Hide()
 end
 
 function Window.Show()
     if not win then
-        Create()
+        local ok, err = pcall(Create)
+        if not ok then
+            root.Print("class quests window: " .. tostring(err))
+            if not win then
+                return
+            end
+        end
     end
-    win:Show()
+    if win:IsShown() then
+        pcall(Window.Fill)
+    else
+        win:Show() -- fills in OnShow
+    end
 end
 
 function Window.Toggle()
