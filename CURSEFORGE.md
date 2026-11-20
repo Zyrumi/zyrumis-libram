@@ -12,7 +12,13 @@ Paladin helper for Forever: blessing and aura reminders with one-key buffing, a 
 
 When your aura, your own blessing or a group member's blessing is missing or about to run out, an icon appears above your character. Click it to cast, or bind **Cast the next buff** and keep pressing it until the icons are gone: buffing a whole group becomes one key.
 
-Each person gets the blessing that suits their class and role. Warriors and rogues get Might, casters and healers get Wisdom, and tanks and hunters get Kings, because Might only adds melee attack power on Forever. If another paladin already gave someone that blessing, they get their next best one instead, and your own blessing on someone is never swapped for another. You can right-click an icon to choose a different blessing for that person, or set one per class in the settings.
+Each person gets the blessing that suits their class and role:
+
+- **Might** for warriors, rogues and other melee
+- **Wisdom** for casters and healers
+- **Kings** for tanks and hunters (Might only adds melee attack power on Forever)
+
+If another paladin already gave someone that blessing, they get their next best one instead, and your own blessing on someone is never swapped for another. You can right-click an icon to choose a different blessing for that person, or set one per class in the settings.
 
 In raids it uses Greater Blessings when you carry Symbols of Kings, and it can restock those for you at vendors, never more than you can pay for. It also reminds you about Righteous Fury, but only while you are tanking. The icons hide during fights, while you are mounted or on a flight path, and if the game won't say what someone has, it shows nothing rather than guessing.
 
@@ -22,7 +28,12 @@ Two buttons sit above your action bar. **Tank** puts on your tank gear set, turn
 
 ### Every class quest, in one place
 
-Click the minimap button to see every paladin class quest chain on Forever for your faction and race, including the new Forsaken paladin chains: Redemption, the level 20 weapons, the armour and weapon quests along the way, and both mounts up to the Charger. Each chain shows its next step, who gives it and where they stand. Steps tick themselves off as you finish them, and a line in chat tells you when a new class quest opens up at your level.
+Click the minimap button to see every paladin class quest chain on Forever for your faction and race, including the new Forsaken paladin chains:
+
+- **Alliance:** Redemption, Verigan's Fist, Cloak of the Divine Storm, Pauldrons of Vindication, Whisper of Aeonas, the Mightstone, Hammer of the Fallen Thane, the Warhorse and the Charger
+- **Horde:** Bandarion Keep, Redemption, the Moonsilver Blade and Wolfsbane, the Warhorse, the Sword of Mourning and the Forsaken Charger
+
+Each chain shows its next step, who gives it and where they stand. Steps tick themselves off as you finish them, and a line in chat tells you when a new class quest opens up at your level.
 
 ### For tanks and groups
 
