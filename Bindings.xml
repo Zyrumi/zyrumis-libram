@@ -1,0 +1,5 @@
+<Bindings>
+	<Binding name="CLICK ZyrumisLibramNextBuff:LeftButton" header="ZYRUMISLIBRAM" category="ADDONS"/>
+	<Binding name="CLICK ZyrumisLibramTankButton:LeftButton" category="ADDONS"/>
+	<Binding name="CLICK ZyrumisLibramDPSButton:LeftButton" category="ADDONS"/>
+</Bindings>
