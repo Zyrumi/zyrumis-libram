@@ -27,6 +27,10 @@ local SEALS = {
     { 20164, "Seal of Justice", short = "Just.", debuff = { 20184, "Judgement of Justice" } },
     { 20165, "Seal of Light", short = "Light", debuff = { 20185, "Judgement of Light" } },
     { 20166, "Seal of Wisdom", short = "Wisd.", debuff = { 20186, "Judgement of Wisdom" } },
+    -- Forever's own seals. Their judgements hit once (Fury also taunts for
+    -- 3 seconds), so nothing to time on the target.
+    { 1311649, "Seal of Fury", short = "Fury" },
+    { 407798, "Seal of Martyrdom", short = "Mart." },
 }
 Seals.SEALS = SEALS
 
