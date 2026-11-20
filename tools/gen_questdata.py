@@ -49,7 +49,9 @@ def info(qid):
 
 A, H = "Alliance", "Horde"
 HU, DW = 1, 4
-# (key, title, reward text, faction, races or None, spell that proves it done, steps, side quests)
+# (key, title, reward text, faction, races or None, spell(s) that prove it done, steps, side quests)
+# Mount spells (Wowhead Forever): Summon Warhorse 13819 and 1279399 (new), Summon Charger 23214,
+# Summon Forsaken Charger 1296534.
 # A step is an ID, or a tuple of IDs where any one counts (different trainers, branches).
 M = [
     ("start", "First lessons", "Meet your paladin trainer", A, None, None,
@@ -64,7 +66,7 @@ M = [
         [78088, 78089, 78090, 78091, 78092, 78093], []),
     ("vindication", "Pauldrons of Vindication", "Pauldrons of Vindication", A, None, None,
         [96438, 79939, 79940, 79945, 79946, 96449, 79963, 79970], []),
-    ("warhorse", "Warhorse", "Summon Warhorse", A, None, 13819,
+    ("warhorse", "Warhorse", "Summon Warhorse", A, None, (13819, 1279399),
         [(1661, 4485, 4486)], []),
     ("whisper", "Whisper of Aeonas", "Whisper", A, None, None,
         [81762, 81764, 81765, 81766, 96476, 81790, 81885, 82135], [81944]),
@@ -72,7 +74,7 @@ M = [
         [8415, 8414, 8416, 8418], []),
     ("thane", "Hammer of the Fallen Thane", "Hammer of the Fallen Thane", A, None, None,
         [84318, 84319, 84330, 84414, 84332], []),
-    ("charger", "Charger", "Summon Charger", A, None, 23214,
+    ("charger", "Charger", "Summon Charger", A, None, (23214,),
         [(7638, 7670), 7637, 7639, 7640, 7641, 7642, 7643, 7644, 7646, 7647], [7645, 7648, 7666]),
 
     ("start", "Bandarion Keep", "Your first paladin lessons", H, None, None,
@@ -81,11 +83,11 @@ M = [
         [94427, 94434, 94435, 94436, 94438, 94440, 94441], []),
     ("moonsilver", "Moonsilver Blade and Wolfsbane", "Moonsilver Blade, then Wolfsbane", H, None, None,
         [91858, 91859, 91860, 91861, 91862, 96204, 95034, 95036, 95111, 95125, 95126, 95140], [95042]),
-    ("warhorse", "Warhorse", "Summon Warhorse", H, None, None,
+    ("warhorse", "Warhorse", "Summon Warhorse", H, None, (13819, 1279399),
         [97022, 94971], []),
     ("mourning", "Sword of Mourning", "Sword of Mourning", H, None, None,
         [93030, 99187], []),
-    ("charger", "Charger", "Forsaken Charger", H, None, None,
+    ("charger", "Charger", "Forsaken Charger", H, None, (1296534,),
         [97174, 97175, 97177, 97176, 97182, 97178, 97179, 97183, 97184, 97185], [97186, 97180]),
 ]
 
@@ -118,7 +120,8 @@ for key, title, reward, fac, races, spell, steps, side in M:
     out.append("        key = %s, title = %s, reward = %s, faction = %s, level = %d,"
                % (lua_str(key), lua_str(title), lua_str(reward), lua_str(fac), lvl))
     if races: out.append("        races = %d," % races)
-    if spell: out.append("        spell = %d," % spell)
+    if isinstance(spell, tuple): out.append("        spell = { " + ", ".join(map(str, spell)) + " },")
+    elif spell: out.append("        spell = %d," % spell)
     out.append("        steps = {")
     for s in steps:
         out.append("            " + step_lua(s) + ",")

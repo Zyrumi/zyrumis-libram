@@ -20,24 +20,24 @@ local QUIET_AFTER_LOAD = 3 -- the aura list can be empty right after a loading s
 local SYMBOL_OF_KINGS = 21177
 
 -- Each blessing: rank 1 spell ID and English name, then the greater version.
+-- Forever has these three only (no Light, Sanctuary or Salvation). All of
+-- them, greater ones too, last an hour there; greater ones still use a
+-- Symbol of Kings each.
 local BLESSINGS = {
     might = { 19740, "Blessing of Might", 25782, "Greater Blessing of Might" },
     wisdom = { 19742, "Blessing of Wisdom", 25894, "Greater Blessing of Wisdom" },
     kings = { 20217, "Blessing of Kings", 25898, "Greater Blessing of Kings" },
-    light = { 19977, "Blessing of Light", 25890, "Greater Blessing of Light" },
-    sanctuary = { 20911, "Blessing of Sanctuary", 25899, "Greater Blessing of Sanctuary" },
-    salvation = { 1038, "Blessing of Salvation", 25895, "Greater Blessing of Salvation" },
 }
 Blessings.BLESSINGS = BLESSINGS
 -- The order used when stepping through picks with right-click.
-local OTHERS_ORDER = { "might", "wisdom", "kings", "light", "sanctuary" }
-local SELF_ORDER = { "might", "wisdom", "kings", "light", "sanctuary", "salvation" }
+local OTHERS_ORDER = { "might", "wisdom", "kings" }
+local SELF_ORDER = { "might", "wisdom", "kings" }
 Blessings.OTHERS_ORDER = OTHERS_ORDER
 
+-- Forever's auras (no Sanctity or Crusader Aura there).
 local AURAS = {
     { 465, "Devotion Aura" }, { 7294, "Retribution Aura" }, { 19746, "Concentration Aura" },
-    { 20218, "Sanctity Aura" }, { 19876, "Shadow Resistance Aura" }, { 19888, "Frost Resistance Aura" },
-    { 19891, "Fire Resistance Aura" }, { 32223, "Crusader Aura" },
+    { 19876, "Shadow Resistance Aura" }, { 19888, "Frost Resistance Aura" }, { 19891, "Fire Resistance Aura" },
 }
 local RIGHTEOUS_FURY = { 25780, "Righteous Fury" }
 

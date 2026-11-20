@@ -3,9 +3,10 @@
 --   your seal and how long it has left, or "No seal" when none is up
 --   your judgement on the target and how long it has left
 -- In combat the game hides most aura details from addons, so the times come
--- from your own casts (cast events stay readable): a seal lasts 30 seconds
--- and is only replaced by casting a seal (judging doesn't end it on
--- Forever). Out of combat the real times are read from your buffs, and a
+-- from your own casts (cast events stay readable). On Forever a seal lasts
+-- 30 seconds and judging doesn't use it up; Judgements of Wisdom, Light and
+-- the Crusader last 40 seconds, Justice 10, and your melee swings keep them
+-- going. Out of combat the real times are read from your buffs, and a
 -- judgement's real length is learned whenever the game shows it.
 
 local ADDON_NAME, root = ...
@@ -16,17 +17,16 @@ root.Seals = Seals
 local IsSecret, Safe = root.IsSecret, root.Safe
 
 local SEAL_TIME = 30
-local JUDGEMENT_TIME = 10 -- until the real length has been seen once
 local JUDGEMENT = { 20271, "Judgement" }
 
 -- Seals (rank 1 IDs). debuff: the judgement it leaves on the target.
 local SEALS = {
     { 21084, "Seal of Righteousness", short = "Right." },
-    { 21082, "Seal of the Crusader", short = "Crus.", debuff = { 21183, "Judgement of the Crusader" } },
+    { 21082, "Seal of the Crusader", short = "Crus.", debuff = { 21183, "Judgement of the Crusader", 40 } },
     { 20375, "Seal of Command", short = "Comm." },
-    { 20164, "Seal of Justice", short = "Just.", debuff = { 20184, "Judgement of Justice" } },
-    { 20165, "Seal of Light", short = "Light", debuff = { 20185, "Judgement of Light" } },
-    { 20166, "Seal of Wisdom", short = "Wisd.", debuff = { 20186, "Judgement of Wisdom" } },
+    { 20164, "Seal of Justice", short = "Just.", debuff = { 20184, "Judgement of Justice", 10 } },
+    { 20165, "Seal of Light", short = "Light", debuff = { 20185, "Judgement of Light", 40 } },
+    { 20166, "Seal of Wisdom", short = "Wisd.", debuff = { 20186, "Judgement of Wisdom", 40 } },
     -- Forever's own seals. Their judgements hit once (Fury also taunts for
     -- 3 seconds), so nothing to time on the target.
     { 1311649, "Seal of Fury", short = "Fury" },
@@ -88,8 +88,20 @@ function Seals.OnCast(spellID)
         local current = seal and seal.ends > GetTime() and seal.s
         if current and current.debuff then
             local dName = root.SpellName(current.debuff[1]) or current.debuff[2]
-            local len = Learned()[dName] or JUDGEMENT_TIME
-            judged = { debuffName = dName, icon = root.SpellIcon(dName), ends = GetTime() + len, guid = TargetGUID() }
+            local len = Learned()[dName] or current.debuff[3]
+            judged = { debuffName = dName, icon = root.SpellIcon(dName), ends = GetTime() + len, length = len,
+                guid = TargetGUID() }
+        end
+    end
+end
+
+-- Your melee swing keeps your judgement on the target going (a swing that
+-- misses doesn't, which the game won't tell addons in combat).
+function Seals.OnSwing(swingType)
+    if judged and swingType ~= 1 and judged.ends > GetTime() then
+        local g = TargetGUID()
+        if not judged.guid or not g or g == judged.guid then
+            judged.ends = GetTime() + judged.length
         end
     end
 end
@@ -122,7 +134,7 @@ local function ReadAuras()
             if not IsSecret(dur) and not IsSecret(exp) and not IsSecret(src) and src == "player"
                 and type(dur) == "number" and dur > 0 then
                 Learned()[judged.debuffName] = dur
-                judged.ends = exp
+                judged.ends, judged.length = exp, dur
             end
         end
     end
@@ -247,8 +259,13 @@ events:RegisterEvent("PLAYER_REGEN_ENABLED")
 events:RegisterEvent("PLAYER_TARGET_CHANGED")
 events:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
 events:RegisterUnitEvent("UNIT_AURA", "player")
+pcall(events.RegisterEvent, events, "PLAYER_SWING") -- a Forever event: (duration, swingType)
 events:SetScript("OnEvent", function(_, event, unit, castGUID, spellID)
     if not root.db or not root.IsPaladin() then
+        return
+    end
+    if event == "PLAYER_SWING" then
+        pcall(Seals.OnSwing, castGUID) -- second argument: swing type, 0 = main hand
         return
     end
     if event == "UNIT_SPELLCAST_SUCCEEDED" then

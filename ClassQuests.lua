@@ -105,7 +105,12 @@ function ClassQuests.Status(m, level)
             lastDone = i
         end
     end
-    local spellKnown = m.spell and root.IsPlayerSpell(m.spell)
+    local spellKnown = false
+    for _, id in ipairs(type(m.spell) == "table" and m.spell or { m.spell }) do
+        if root.IsPlayerSpell(id) then
+            spellKnown = true
+        end
+    end
     if lastDone == #m.steps or spellKnown then
         return { state = "done", doneCount = #m.steps }
     end

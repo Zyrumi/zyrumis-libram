@@ -90,7 +90,7 @@ root.QUEST_DATA = {
     },
     {
         key = "warhorse", title = "Warhorse", reward = "Summon Warhorse", faction = "Alliance", level = 40,
-        spell = 13819,
+        spell = { 13819, 1279399 },
         steps = {
             { ids = { 1661, 4485, 4486 }, name = "The Tome of Nobility", level = 40, giver = "Duthorian Rall", zone = 1519, x = 50.5, y = 47.5 },
         },
@@ -132,7 +132,7 @@ root.QUEST_DATA = {
     },
     {
         key = "charger", title = "Charger", reward = "Summon Charger", faction = "Alliance", level = 60,
-        spell = 23214,
+        spell = { 23214 },
         steps = {
             { ids = { 7638, 7670 }, name = "Lord Grayson Shadowbreaker", level = 60, giver = "Duthorian Rall", zone = 1519, x = 50.5, y = 47.5 },
             { ids = { 7637 }, name = "Emphasis on Sacrifice", level = 60, giver = "Lord Grayson Shadowbreaker", zone = 1519, x = 48.4, y = 50.2 },
@@ -201,6 +201,7 @@ root.QUEST_DATA = {
     },
     {
         key = "warhorse", title = "Warhorse", reward = "Summon Warhorse", faction = "Horde", level = 40,
+        spell = { 13819, 1279399 },
         steps = {
             { ids = { 97022 }, name = "Report to Danitha", level = 40, giver = "Garen Largo", zone = 1497, x = 47.5, y = 15.0 },
             { ids = { 94971 }, name = "A Paladin's Steed", level = 40, giver = "Danitha Morr", zone = 85, x = 22.1, y = 44.7 },
@@ -215,6 +216,7 @@ root.QUEST_DATA = {
     },
     {
         key = "charger", title = "Charger", reward = "Forsaken Charger", faction = "Horde", level = 60,
+        spell = { 1296534 },
         steps = {
             { ids = { 97174 }, name = "A Worthy Endeavor", level = 60, giver = "Garen Largo", zone = 1497, x = 47.5, y = 15.0 },
             { ids = { 97175 }, name = "Due Sacrifice", level = 60, giver = "Danitha Morr", zone = 85, x = 22.1, y = 44.7 },

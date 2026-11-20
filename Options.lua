@@ -8,10 +8,7 @@ local ADDON_NAME, root = ...
 
 local UI
 
-local BLESSING_TEXT = {
-    might = "Might", wisdom = "Wisdom", kings = "Kings", light = "Light",
-    sanctuary = "Sanctuary", salvation = "Salvation",
-}
+local BLESSING_TEXT = { might = "Might", wisdom = "Wisdom", kings = "Kings" }
 local CLASS_TEXT = {
     WARRIOR = "Warriors", ROGUE = "Rogues", HUNTER = "Hunters", MAGE = "Mages", WARLOCK = "Warlocks",
     PRIEST = "Priests", DRUID = "Druids", SHAMAN = "Shamans", PALADIN = "Paladins",
@@ -175,7 +172,7 @@ local function BuildBlessings()
     y = y - 28
     UI.Choice(page, "Blessing on yourself", "Automatic uses the one you put on yourself last, or what your role suits.",
         x, y, 190,
-        BlessingChoices(true, "Automatic", { "might", "wisdom", "kings", "light", "sanctuary", "salvation" }),
+        BlessingChoices(true, "Automatic", { "might", "wisdom", "kings" }),
         function() local c = root.CharData(); return c and c.selfPick or false end,
         function(v) local c = root.CharData(); if c then c.selfPick = v or nil end; B.Update() end)
     y = y - 36
