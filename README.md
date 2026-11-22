@@ -39,6 +39,8 @@ A paladin helper for World of Warcraft: Forever. It works the moment you log in:
 
 Esc > Options > AddOns > Zyrumi's Libram, the minimap button, the minimap's addon menu, or `/libram`.
 
+On other classes the Libram stays out of sight: no minimap button, no addon menu entry and no settings pages, so you can leave it on for every character.
+
 | Command | What it does |
 |---|---|
 | `/libram` | open the settings |

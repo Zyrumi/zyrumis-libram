@@ -3,7 +3,9 @@
 --   Right-click: settings
 --   Drag:        move the button around the minimap's edge
 -- The button can be hidden on the settings page; the entry in the minimap's
--- addon menu (the TOC's AddonCompartmentFunc) is always there.
+-- addon menu is always there. Both only on paladins: on other classes the
+-- Libram stays out of sight (the menu entry is added from here, not the
+-- TOC, so it can be left out).
 
 local ADDON_NAME, root = ...
 
@@ -64,9 +66,6 @@ end
 local function Tooltip(owner, anchor)
     GameTooltip:SetOwner(owner, anchor or "ANCHOR_LEFT")
     GameTooltip:SetText(root.TITLE, 1, 0.82, 0)
-    if not root.IsPaladin() then
-        GameTooltip:AddLine("Only does something on a paladin.", 1, 0.5, 0.5, true)
-    end
     GameTooltip:AddLine("Left-click: Class quests", 1, 1, 1, true)
     GameTooltip:AddLine("Right-click: Settings", 1, 1, 1, true)
     if owner == button then
@@ -116,7 +115,7 @@ function MinimapButton.Refresh()
     if not Minimap or not root.db then
         return
     end
-    if Settings().hide then
+    if Settings().hide or not root.IsPaladin() then
         if button then
             button:Hide()
         end
@@ -138,7 +137,7 @@ function MinimapButton.SetShown(on)
     MinimapButton.Refresh()
 end
 
--- The minimap's addon menu calls these by name (see the .toc file).
+-- Kept for anyone's old bindings or macros that call them by name.
 function ZyrumisLibram_OnAddonCompartmentClick(_, mouse)
     Click(mouse)
 end
@@ -151,11 +150,31 @@ function ZyrumisLibram_OnAddonCompartmentLeave()
     GameTooltip:Hide()
 end
 
-local events = CreateFrame("Frame")
-events:RegisterEvent("PLAYER_LOGIN")
-events:SetScript("OnEvent", function()
+-- The entry in the minimap's addon menu.
+local function AddMenuEntry()
+    local menu = AddonCompartmentFrame
+    if not (menu and menu.RegisterAddon) then
+        return
+    end
+    menu:RegisterAddon({
+        text = root.TITLE,
+        icon = "Interface\\Icons\\INV_Relics_LibramOfTruth",
+        notCheckable = true,
+        func = function(_, inputData)
+            Click(type(inputData) == "table" and inputData.buttonName or "LeftButton")
+        end,
+        funcOnEnter = function(btn) Tooltip(btn, "ANCHOR_LEFT") end,
+        funcOnLeave = function() GameTooltip:Hide() end,
+    })
+end
+
+root.OnPaladin(function()
     local ok, err = pcall(MinimapButton.Refresh)
     if not ok then
         root.Print("minimap button: " .. tostring(err))
+    end
+    ok, err = pcall(AddMenuEntry)
+    if not ok then
+        root.Print("addon menu: " .. tostring(err))
     end
 end)

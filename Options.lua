@@ -59,12 +59,6 @@ local function BuildMain()
     UI.PageTitle(page, root.TITLE, "Version " .. Version() .. ". Your paladin helper: reminders, one-key buffing, tank tools.", x, y)
     y = y - 52
 
-    if not root.IsPaladin() then
-        local warn = UI.Note(page, "|cffff8080This character is not a paladin, so nothing here does anything on it.|r", x, y)
-        warn:SetFontObject("GameFontHighlight")
-        y = y - 26
-    end
-
     UI.Heading(page, "Parts", x, y)
     y = y - 26
     for _, p in ipairs(PARTS) do
@@ -282,9 +276,8 @@ local function BuildCombat()
     root.RegisterSubPage(panel, "Tank / DPS")
 end
 
-local events = CreateFrame("Frame")
-events:RegisterEvent("PLAYER_LOGIN")
-events:SetScript("OnEvent", function()
+-- Settings pages only on paladins (see root.OnPaladin).
+root.OnPaladin(function()
     UI = root.UI
     for _, build in ipairs({ BuildMain, BuildBlessings, BuildCombat, root.ClassQuests.BuildPage }) do
         local ok, err = pcall(build)

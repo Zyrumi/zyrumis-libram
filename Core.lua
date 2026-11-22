@@ -137,6 +137,36 @@ function root.IsPaladin()
     return root.PlayerClass() == "PALADIN"
 end
 
+-- On other classes the Libram stays out of sight: no minimap button, no
+-- addon menu entry, no settings pages. These run once the class is known to
+-- be paladin (at login, or after the fight if the game hid it then).
+local onPaladin = {}
+function root.OnPaladin(fn)
+    if onPaladin then
+        onPaladin[#onPaladin + 1] = fn
+    elseif root.IsPaladin() then
+        fn() -- already known: right away
+    end
+end
+
+local function CheckClass()
+    local class = root.PlayerClass()
+    if not class or not onPaladin then
+        return -- not readable yet (try again after combat), or done
+    end
+    local list = onPaladin
+    onPaladin = nil
+    if class ~= "PALADIN" then
+        return
+    end
+    for _, fn in ipairs(list) do
+        local ok, err = pcall(fn)
+        if not ok then
+            root.Print(tostring(err))
+        end
+    end
+end
+
 function root.InCombat()
     if InCombatLockdown() then
         return true
@@ -902,6 +932,7 @@ events:SetScript("OnEvent", function(_, event, arg1)
         end
     elseif event == "PLAYER_LOGIN" then
         root.PlayerClass() -- read it while it can be read
+        CheckClass()
         pcall(root.MainCategory)
         if root.IsPaladin() and not root.db.welcomed then
             C_Timer.After(4, function()
@@ -918,6 +949,7 @@ events:SetScript("OnEvent", function(_, event, arg1)
             root.SetUnlocked(false) -- secure frames can't move in a fight
         end
     elseif event == "PLAYER_REGEN_ENABLED" then
+        CheckClass()
         if openAfterCombat then
             local sub = openAfterCombat
             openAfterCombat = nil
@@ -944,6 +976,11 @@ SLASH_ZYRUMISLIBRAM1 = "/libram"
 SLASH_ZYRUMISLIBRAM2 = "/zl"
 SlashCmdList.ZYRUMISLIBRAM = function(input)
     local cmd = strtrim(input or ""):lower()
+    local class = root.PlayerClass()
+    if class and class ~= "PALADIN" then
+        root.Print("only works on paladins, so it stays out of the way on this character.")
+        return
+    end
     if cmd == "help" or cmd == "?" then
         root.Print("commands:")
         for _, line in ipairs(HELP) do
