@@ -18,7 +18,7 @@ Each person gets the blessing that suits their class and role:
 - **Wisdom** for casters and healers
 - **Kings** for tanks and hunters (Might only adds melee attack power on Forever)
 
-If another paladin already gave someone that blessing, they get their next best one instead, and your own blessing on someone is never swapped for another. You can right-click an icon to choose a different blessing for that person, or set one per class in the settings.
+If another paladin already gave someone that blessing, they get their next best one instead, and your own blessing on someone is never swapped for another. You can right-click an icon to choose a different blessing for that person, or set one per class in the settings. At a campfire, a camp item that can't stack with a blessing counts as that blessing (Fish Bowl for Kings, Mana Well for Wisdom, Lodestone for Might), so nobody is asked for a blessing that wouldn't stick.
 
 In raids it uses Greater Blessings when you carry Symbols of Kings, and it can restock those for you at vendors, never more than you can pay for. It also reminds you about Righteous Fury, but only while you are tanking. The icons hide during fights, while you are mounted or on a flight path, and if the game won't say what someone has, it shows nothing rather than guessing.
 

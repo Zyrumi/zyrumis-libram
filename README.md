@@ -9,6 +9,7 @@ A paladin helper for World of Warcraft: Forever. It works the moment you log in:
 - Bind **Cast the next buff** (Options > Keybindings > AddOns) and press it until the icons are gone.
 - Each group member gets the blessing that suits their class and group role: Might for warriors and rogues, Wisdom for casters and healers, Kings for tanks and hunters. Might is melee only on Forever, so hunters never get it.
 - If another paladin already gave someone that blessing, they get their next best.
+- At a campfire, camp items that can't stack with a blessing count as that blessing: Fish Bowl for Kings, Mana Well for Wisdom, Lodestone for Might.
 - Right-click a blessing icon to choose another blessing for that person. Choose per class on the settings page.
 - Greater blessings in raids (or any group) when you carry Symbols of Kings, one cast per class.
 - Optional Symbol of Kings restock at vendors, never more than you can pay for.

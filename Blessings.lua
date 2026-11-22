@@ -29,6 +29,18 @@ local BLESSINGS = {
     kings = { 20217, "Blessing of Kings", 25898, "Greater Blessing of Kings" },
 }
 Blessings.BLESSINGS = BLESSINGS
+
+-- Forever campfires: sitting at a camp gives one "Camp Benefits" buff with
+-- a tooltip line per camp item. Three of them can't stack with a blessing
+-- (Fish Bowl / Kings, Mana Well / Wisdom, Lodestone / Might), so the line
+-- counts as someone else's blessing of that kind. English text only.
+local CAMP_BENEFITS = 1229741
+local CAMP_LINES = {
+    kings = "all stats increased",
+    wisdom = "mana every 5 seconds",
+    might = "melee attack power increased",
+}
+Blessings.CAMP_LINES = CAMP_LINES
 -- The order used when stepping through picks with right-click.
 local OTHERS_ORDER = { "might", "wisdom", "kings" }
 local SELF_ORDER = { "might", "wisdom", "kings" }
@@ -163,8 +175,75 @@ local function PlayerBuffs()
     return nil
 end
 
+-- Camp Benefits on a unit: { left, lines } (lines false when its tooltip
+-- can't be read), false when not there, nil when the game won't say.
+-- Tooltips are read again only when the buff changes.
+local campCache = {}
+local function CampOn(unit)
+    if not (C_UnitAuras and C_UnitAuras.GetAuraDataBySpellName) then
+        return nil
+    end
+    local ok, a = pcall(C_UnitAuras.GetAuraDataBySpellName, unit, root.SpellName(CAMP_BENEFITS) or "Camp Benefits", "HELPFUL")
+    if not ok or IsSecret(a) then
+        return nil
+    end
+    if type(a) ~= "table" then
+        return false
+    end
+    local id, exp = a.auraInstanceID, a.expirationTime
+    if IsSecret(id) or IsSecret(exp) then
+        return nil
+    end
+    exp = tonumber(exp) or 0
+    local left = exp == 0 and math.huge or exp - GetTime()
+    local cached = campCache[unit]
+    if cached and cached.id == id and cached.exp == exp then
+        return { left = left, lines = cached.lines }
+    end
+    local lines = false
+    if id and C_TooltipInfo and C_TooltipInfo.GetUnitBuffByAuraInstanceID then
+        local okT, data = pcall(C_TooltipInfo.GetUnitBuffByAuraInstanceID, unit, id)
+        if okT and type(data) == "table" and not IsSecret(data) and type(data.lines) == "table" then
+            lines = {}
+            for _, line in ipairs(data.lines) do
+                local t = line.leftText
+                if type(t) == "string" and not IsSecret(t) then
+                    lines[#lines + 1] = t:lower()
+                end
+            end
+            if #lines == 0 then
+                lines = false
+            end
+        end
+    end
+    campCache[unit] = { id = id, exp = exp, lines = lines }
+    return { left = left, lines = lines }
+end
+
+-- Does the camp on a unit stand in for this blessing? Time left, or nil.
+-- A tooltip that can't be read counts (better quiet than asking for a
+-- blessing that won't stick).
+local function CampBlessing(unit, key)
+    local want = CAMP_LINES[key]
+    local camp = want and CampOn(unit)
+    if not camp then
+        return nil
+    end
+    if not camp.lines then
+        return camp.left
+    end
+    for _, t in ipairs(camp.lines) do
+        if t:find(want, 1, true) then
+            return camp.left
+        end
+    end
+    return nil
+end
+Blessings.CampBlessing = CampBlessing
+
 -- A blessing (or its greater version) on a unit: { left, mine } or false
--- when it isn't there; nil when the game won't say.
+-- when it isn't there; nil when the game won't say. A camp item that
+-- stands in for it counts as someone else's (camp = true).
 local function BlessingOn(unit, key)
     if not (C_UnitAuras and C_UnitAuras.GetAuraDataBySpellName) then
         return nil
@@ -185,6 +264,10 @@ local function BlessingOn(unit, key)
             exp = tonumber(exp) or 0
             return { left = exp == 0 and math.huge or exp - GetTime(), mine = mine and true or false }
         end
+    end
+    local campLeft = CampBlessing(unit, key)
+    if campLeft then
+        return { left = campLeft, mine = false, camp = true }
     end
     return false
 end
@@ -333,6 +416,11 @@ local function SelfBlessingState(buffs, c)
                 end
             end
         end
+    end
+    -- A camp item that can't stack with the blessing you want counts too.
+    local campLeft = castKey and CampBlessing("player", castKey)
+    if campLeft and (not best or campLeft > best) then
+        best, bestName = campLeft, "Camp Benefits"
     end
     if best then
         if best <= RefreshAt() then
