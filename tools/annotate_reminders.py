@@ -3,19 +3,15 @@
 Usage: python tools/annotate_reminders.py <in.png> <out.png>
 Coordinates below are in the original screenshot's pixels (423x245 crop).
 """
+import os
 import sys
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from gallery_style import BG, GOLD, TEXT, LINE, font, wrap, header
 
 SCALE = 2
 LEFT, RIGHT, TOP, BOTTOM = 330, 360, 90, 30
-BG = (20, 17, 14)
-GOLD = (255, 209, 0)
-TEXT = (235, 230, 220)
-MUTED = (165, 158, 145)
-LINE = (255, 209, 0)
-
-FONT = "C:/Windows/Fonts/segoeui.ttf"
-FONT_B = "C:/Windows/Fonts/segoeuib.ttf"
 
 # (target x, y in the original shot (an icon edge, so the icon stays visible), side, label y on the canvas, title, body)
 CALLOUTS = [
@@ -32,20 +28,6 @@ CALLOUTS = [
 ]
 
 
-def wrap(draw, text, font, width):
-    words, lines, cur = text.split(), [], ""
-    for w in words:
-        test = (cur + " " + w).strip()
-        if draw.textlength(test, font=font) <= width:
-            cur = test
-        else:
-            lines.append(cur)
-            cur = w
-    if cur:
-        lines.append(cur)
-    return lines
-
-
 def main(src, dst):
     shot = Image.open(src).convert("RGB")
     shot = shot.resize((shot.width * SCALE, shot.height * SCALE), Image.LANCZOS)
@@ -55,14 +37,9 @@ def main(src, dst):
     img.paste(shot, (LEFT, TOP))
     d = ImageDraw.Draw(img)
 
-    title_f = ImageFont.truetype(FONT_B, 30)
-    sub_f = ImageFont.truetype(FONT, 18)
-    head_f = ImageFont.truetype(FONT_B, 21)
-    body_f = ImageFont.truetype(FONT, 17)
-
-    d.text((24, 18), "Zyrumi's Libram: reminders", font=title_f, fill=GOLD)
-    d.text((24, 56), "Icons appear only when something is missing. "
-           "When everything is up, nothing is on screen.", font=sub_f, fill=MUTED)
+    head_f, body_f = font(21, True), font(17)
+    header(d, "Zyrumi's Libram: reminders", "Icons appear only when something is missing. "
+           "When everything is up, nothing is on screen.")
 
     pad, box_w = 22, None
     for tx, ty, side, ly, title, body in CALLOUTS:
