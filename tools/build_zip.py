@@ -4,8 +4,8 @@
 import io, os, re, subprocess, tarfile, zipfile
 
 REPO = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-SKIP_DIRS = ("tools/", "art/")
-SKIP_FILES = {"CURSEFORGE.md", ".gitignore", ".pkgmeta"}  # keep in step with .pkgmeta
+SKIP_DIRS = ("tools/", "art/", ".github/")
+SKIP_FILES = {"CURSEFORGE.md", "CHANGELOG.md", ".gitignore", ".pkgmeta"}  # keep in step with .pkgmeta
 
 toc = open(os.path.join(REPO, "ZyrumisLibram.toc"), encoding="utf-8").read()
 version = re.search(r"^## Version: (\S+)", toc, re.M).group(1)

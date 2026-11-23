@@ -7,3 +7,10 @@ ignore:
   - art
   - CURSEFORGE.md
   - .gitignore
+  - .github
+  - CHANGELOG.md
+
+# Uploaded as the file's changelog. Holds the notes for the release being tagged.
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown

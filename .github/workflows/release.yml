@@ -1,0 +1,46 @@
+# Uploads a release to CurseForge when a version tag is pushed (git tag 1.2.1,
+# git push origin 1.2.1). Plain commits never upload anything.
+# Needs the repo secret CF_API_TOKEN and "## X-Curse-Project-ID" in the .toc.
+# "Run workflow" by hand builds the zip without uploading, as a test.
+name: Release
+
+on:
+  push:
+    tags: ["*"]
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tag must match the .toc version
+        if: github.ref_type == 'tag'
+        run: |
+          v=$(sed -n 's/^## Version: *//p' ZyrumisLibram.toc | tr -d '\r')
+          if [ "$v" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag is $GITHUB_REF_NAME but ZyrumisLibram.toc says $v. Bump the .toc first."
+            exit 1
+          fi
+
+      - name: Package and upload to CurseForge
+        if: github.ref_type == 'tag'
+        uses: BigWigsMods/packager@v2
+        with:
+          args: -n "{package-name}-{project-version}"
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+
+      - name: Package only (test run, no upload)
+        if: github.ref_type != 'tag'
+        uses: BigWigsMods/packager@v2
+        with:
+          args: -d -n "{package-name}-{project-version}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: .release/*.zip
