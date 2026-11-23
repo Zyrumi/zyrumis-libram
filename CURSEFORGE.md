@@ -53,3 +53,5 @@ Everything can be switched off, moved and resized. Right-click the minimap butto
 Libram is built around Forever's own spells and quests, not Classic's. Spell names come from the game, so it works in any client language, though its own text is English. In raids where PallyPower is loaded, it leaves group blessings to PallyPower. On other classes it stays out of sight, with no minimap button, menu entry or settings, so you can leave it on for all your characters.
 
 Found a bug or have an idea? Open an issue on [GitHub](https://github.com/Zyrumi/zyrumis-libram/issues) and paste any error text along with your addon version.
+
+Icon: [Bookmark](https://game-icons.net/1x1/lorc/bookmark.html) by Lorc, [game-icons.net](https://game-icons.net), [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/), recoloured.

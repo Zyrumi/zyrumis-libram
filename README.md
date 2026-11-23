@@ -56,3 +56,7 @@ On other classes the Libram stays out of sight: no minimap button, no addon menu
 - Forever hides most buff details from addons during fights. Reminders wait until the fight is over. Nothing is guessed: if the game won't say what someone has, no icon shows.
 - Spell names come from the game, so any client language works. The addon's own text is English.
 - With PallyPower loaded, raid blessings are left to PallyPower.
+
+## Credits
+
+Project icon: [Bookmark](https://game-icons.net/1x1/lorc/bookmark.html) by Lorc, from [game-icons.net](https://game-icons.net), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Recoloured.
