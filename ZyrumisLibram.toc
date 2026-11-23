@@ -5,6 +5,7 @@
 ## Version: 1.2.0
 ## IconTexture: Interface\Icons\INV_Relics_LibramOfTruth
 ## SavedVariables: ZyrumisLibramDB
+## X-Curse-Project-ID: 1818825
 
 Core.lua
 Blessings.lua
