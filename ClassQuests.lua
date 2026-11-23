@@ -496,7 +496,8 @@ function Window.Fill()
             r.title:SetText(("%s  |cffa0a0a0level %d, %s|r"):format(m.title, m.level, m.reward))
         end
         if st.state == "done" then
-            r.line1:SetText(("All %d steps done."):format(#m.steps))
+            r.line1:SetText(#m.steps == 1 and "The only step is done."
+                or ("All %d steps done."):format(#m.steps))
             r.line2:SetText("")
         else
             local where = ClassQuests.Where(st.next)
